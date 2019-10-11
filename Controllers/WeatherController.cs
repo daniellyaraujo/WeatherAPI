@@ -28,14 +28,15 @@ namespace WeatherAPI.Controllers
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
         public ActionResult GetWeatherByRegion(string region)
         {
+
+
             throw new NotImplementedException();
         }
 
         /// <summary>
         /// Get current weather by city and state
         /// </summary>
-        /// <param name="city"></param>
-        /// <param name="state"></param>
+        /// <param name="city"></param>        
         /// <returns></returns>
 
         [HttpGet("city/{city}/{state}")]
@@ -52,8 +53,7 @@ namespace WeatherAPI.Controllers
         /// <summary>
         /// Get the weather for the next 72 hours
         /// </summary>
-        /// <param name="city"></param>
-        /// <param name="state"></param>
+        /// <param name="city"></param>      
         /// <returns></returns>
         [HttpGet("72hr/{city}/{state}")]
         [ProducesResponseType(typeof(HourResponse), StatusCodes.Status200OK)]
