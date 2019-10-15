@@ -5,7 +5,11 @@ namespace WeatherAPI.Models.Region
 {
     public class RegionResponse
     {
-        public List<RegionRequest> Data { get; set; }
+        public RegionResponse()
+        {
+            Data = new List<RegionRequest>();
+        }
+        public IList<RegionRequest> Data { get; set; }
     }
 
     public class RegionRequest
