@@ -3,12 +3,12 @@ using ClimaTempoAPI.Models;
 using ClimaTempoAPI.Models.Current;
 using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
-using ClimaTempoAPI.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using WeatherAPI.Models;
 using WeatherAPI.Models.Region;
+using ClimaTempoAPI.Service;
 
 namespace WeatherAPI.Controllers
 {
@@ -52,62 +52,125 @@ namespace WeatherAPI.Controllers
 
                 return new OkObjectResult(regionResponse);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }            
+            }
         }
 
         /// <summary>
         /// Get current weather by city and state
         /// </summary>
-        /// <param name="city"></param>        
+        /// <param name="request"></param>        
         /// <returns></returns>
         [HttpGet("city/{city}/{state}")]
         [ProducesResponseType(typeof(CityClimate), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public ActionResult GetCurrentWeatherByCity(ParameterRequest city)
+        public ActionResult GetCurrentWeatherByCity(ParameterRequest request)
         {
-            
-            if (string.IsNullOrEmpty(city.City))
+            if (request == null || string.IsNullOrEmpty(request.City) || string.IsNullOrEmpty(request.State))
             {
                 var result = new ErrorResponse();
                 result.Message = "Cidade ou Estado Inválidos";
                 return new BadRequestObjectResult(result);
             }
-            throw new NotImplementedException();
+
+            try
+            {
+                var result = _service.GetCurrentWeatherByCity(request);
+
+                if (result == null)
+                {
+                    var errorResponse = new ErrorResponse();
+                    errorResponse.Message = "Cidade invalida, verifique.";
+                    return new BadRequestObjectResult(errorResponse);
+                }
+
+                return new OkObjectResult(result);
+
+            }
+            catch (Exception)
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
         /// <summary>
         /// Get the weather for the next 72 hours
         /// </summary>
-        /// <param name="city"></param>      
+        /// <param name="request"></param>      
         /// <returns></returns>
         [HttpGet("72hr/{city}/{state}")]
         [ProducesResponseType(typeof(HourResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public ActionResult Get72hrWeatherById(ParameterRequest city)
+        public ActionResult Get72hrWeatherById(ParameterRequest request)
         {
-            throw new NotImplementedException();
+            if (request == null || string.IsNullOrEmpty(request.City) || string.IsNullOrEmpty(request.State))
+            {
+                var result = new ErrorResponse();
+                result.Message = "Cidade ou Estado Inválidos";
+                return new BadRequestObjectResult(result);
+            }
+
+            try
+            {
+                var result = _service.Get72hrWeatherById(request);
+
+                if (result == null)
+                {
+                    var errorResponse = new ErrorResponse();
+                    errorResponse.Message = "Cidade invalida, verifique.";
+                    return new BadRequestObjectResult(errorResponse);
+                }
+
+                return new OkObjectResult(result);
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
         /// <summary>
         /// Get forecast for next 15 days.
         /// </summary>
-        /// <param name="city"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpGet("15days/{city}/{state}")]
         [ProducesResponseType(typeof(DaysResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public ActionResult Get15daysWeather(ParameterRequest city)
+        public ActionResult Get15daysWeatherById(ParameterRequest request)
         {
-            throw new NotImplementedException();
+            if (request == null || string.IsNullOrEmpty(request.City) || string.IsNullOrEmpty(request.State))
+            {
+                var result = new ErrorResponse();
+                result.Message = "Cidade ou Estado Inválidos";
+                return new BadRequestObjectResult(result);
+            }
+
+            try
+            {
+                var result = _service.Get15DaysWeather(request);
+
+                if (result == null)
+                {
+                    var errorResponse = new ErrorResponse();
+                    errorResponse.Message = "Cidade invalida, verifique.";
+                    return new BadRequestObjectResult(errorResponse);
+                }
+
+                return new OkObjectResult(result);
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
 
