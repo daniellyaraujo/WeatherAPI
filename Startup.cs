@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ClimaTempoAPI.Client;
 using ClimaTempoAPI.Interfaces;
 using ClimaTempoAPI.Service;
 using Microsoft.AspNetCore.Builder;
@@ -32,7 +33,8 @@ namespace WeatherAPI
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSingleton<IWeatherService, WeatherService>();         
+            services.AddSingleton<IWeatherService, WeatherService>();
+            services.AddHttpClient<IHttpClient, HttpClientWrapper>();
 
             // Configurando o serviço de documentação do Swagger
             services.AddSwaggerGen(c =>
