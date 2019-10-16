@@ -4,19 +4,53 @@ using ClimaTempoAPI.Models.Current;
 using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Net.Http;
 using WeatherAPI.Models.Region;
 
 namespace ClimaTempoAPI.Service
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class WeatherService : IWeatherService
     {
+        private readonly IHttpClient _client;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public WeatherService(IHttpClient client)
+        {
+            _client = client;
+        }
+
         public RegionResponse GetWeatherByRegion(string region)
         {
-            throw new NotImplementedException();
+            RegionResponse response;
+
+            var result = _client.GetAsync("http://apiadvisor.climatempo.com.br/api/v1/forecast/region/" + region + "?token=0b5e7fb3c07b2dbcbf28773b0138e85d").GetAwaiter().GetResult();
+
+            if (result == null) return null;
+
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                response = result.Content.ReadAsAsync<RegionResponse>().GetAwaiter().GetResult();
+
+                return response;
+            }
+
+            if (!result.IsSuccessStatusCode)
+            {
+                response = new RegionResponse { StatusCode = result.StatusCode };
+
+                return response;
+            }
+
+            response = result.Content.ReadAsAsync<RegionResponse>().Result;
+
+            return response;
         }
+
         public CityResponse GetCurrentWeatherByCity(ParameterRequest city)
         {
             throw new NotImplementedException();

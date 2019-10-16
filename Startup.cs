@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using ClimaTempoAPI.Interfaces;
 using ClimaTempoAPI.Service;
@@ -24,7 +25,6 @@ namespace WeatherAPI
             Configuration = configuration;
         }
 
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -32,7 +32,7 @@ namespace WeatherAPI
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSingleton<IWeatherService, WeatherService>();
+            services.AddSingleton<IWeatherService, WeatherService>();         
 
             // Configurando o serviço de documentação do Swagger
             services.AddSwaggerGen(c =>

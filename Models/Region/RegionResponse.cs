@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace WeatherAPI.Models.Region
 {
@@ -7,12 +9,20 @@ namespace WeatherAPI.Models.Region
     {
         public RegionResponse()
         {
-            Data = new List<RegionRequest>();
+            Data = new List<Region>();
         }
-        public IList<RegionRequest> Data { get; set; }
+
+        [JsonIgnore]
+        public HttpStatusCode StatusCode { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string Detail { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IList<Region> Data { get; set; }
     }
 
-    public class RegionRequest
+    public class Region
     {
         public DateTime Date { get; set; }
         public string Description { get; set; }
