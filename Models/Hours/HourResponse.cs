@@ -6,6 +6,7 @@ namespace ClimaTempoAPI.Models.Hour
     public class HourResponse
     {
         public List<Hour> Data { get; set; }
+        public string Detail { get; set; }
     }
 
     public class Hour
