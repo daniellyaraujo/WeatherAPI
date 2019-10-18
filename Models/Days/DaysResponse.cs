@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using System;
+using System.Net;
 
 namespace ClimaTempoAPI.Models.Days
 {
     public class DaysResponse
     {
-        public DateTime Date { get; set; }
+        [JsonIgnore]
+        public HttpStatusCode StatusCode { get; set; }
+        public DateTime? Date { get; set; }
         public ClimateResponse Status { get; set; }
-
+        public string  Detail { get; set; }
     }
 }

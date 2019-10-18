@@ -55,9 +55,68 @@ namespace ClimaTempoAPI.Service
             return response;
         }
 
-        public CityResponse GetCurrentWeatherByCity(ParameterRequest city)
+        public CityResponse GetCurrentWeatherByCity(ParameterRequest parameterRequest)
         {
-            throw new NotImplementedException();
+            CityResponse response;
+
+            if (parameterRequest == null || parameterRequest.State == null || parameterRequest.City == null)
+            {
+                response = new CityResponse()
+                {
+                    Detail = "Parâmetros Inválidos",
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                };
+                return response;
+            }
+
+            try
+            {
+                var result = _httpClient.GetAsync($"{_host}/locale/city?name={parameterRequest.City}&state={parameterRequest.State}&{_token}").Result;
+
+                if (result.Content == null)
+                {
+                    return new CityResponse()
+                    {
+                        Detail = "Cidade ou Estado inválidos.",
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
+                }
+
+                var baseModel = result.Content.ReadAsAsync<BaseModel>().Result;
+
+                result = _httpClient.GetAsync($"{_host}forecast/locale/{baseModel.Id}/days/15?{_token}").Result;
+
+                var finalResult = result.Content.ReadAsAsync<CityResponse>().Result;
+                finalResult.StatusCode = result.StatusCode;
+
+                return finalResult;
+            }
+            catch (UnsupportedMediaTypeException ex)
+            {
+                return new CityResponse()
+                {
+                    Detail = "Não foi possível executar a operação, verifique os " +
+                    "Parametros informados e tente novamente.",
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CityResponse()
+                {
+                    StatusCode = System.Net.HttpStatusCode.BadGateway,
+                    Detail = "Falha de comunicação.",
+                    Date = new DateTime(2019, 10, 18),
+                    Humidity = 20,
+                    Condition = "Nublado",
+                    Pressure = 21,
+                    Sensation = 23,
+                    Temperature = 23.4,
+                    WindDirection = "sul",
+                    WindVelocity = 23
+                };
+
+            }
         }
 
         public HourResponse Get72hrWeatherById(ParameterRequest parameterRequest)
@@ -66,46 +125,110 @@ namespace ClimaTempoAPI.Service
 
             if (parameterRequest == null || parameterRequest.State == null || parameterRequest.City == null)
             {
-                errorResponse = new HourResponse() { Detail = "Parâmetros Inválidos" };
-                return errorResponse;
-            }
-
-            var result = _httpClient.GetAsync($"{_host}/locale/city?name={parameterRequest.City}&state={parameterRequest.State}&{_token}")
-                .Result;
-
-            if (result.Content == null)
-            {
-                errorResponse = new HourResponse() { Detail = "Cidade ou Estado inválidos." };
+                errorResponse = new HourResponse()
+                {
+                    Detail = "Parâmetros Inválidos",
+                    Data = null,
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                };
                 return errorResponse;
             }
 
             try
             {
-                var response = result.Content.ReadAsAsync<HourResponse>().Result;
-                
+                var result = _httpClient.GetAsync($"{_host}/locale/city?name={parameterRequest.City}&state={parameterRequest.State}&{_token}").Result;
+                if (result.Content == null)
+                {
+                    errorResponse = new HourResponse()
+                    {
+                        Detail = "Cidade ou Estado inválidos.",
+                        Data = null,
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
+                    return errorResponse;
+                }
+                var response = result.Content.ReadAsAsync<BaseModel>().Result;
 
+                result = _httpClient.GetAsync($"{_host}forecast/locale/{response.Id}/hours/72?{_token}").Result;
+
+                var finalResult = result.Content.ReadAsAsync<HourResponse>().Result;
+                finalResult.StatusCode = result.StatusCode;
+
+                return finalResult;
             }
             catch (UnsupportedMediaTypeException ex)
             {
                 errorResponse = new HourResponse()
                 {
                     Detail = "Não foi possível executar a operação, verifique os " +
-                    "Parametros informados e tente novamente."
+                    "Parametros informados e tente novamente.",
+                    Data = null,
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
                 };
+
                 return errorResponse;
+
             }
             catch (Exception ex)
             {
-                errorResponse = new HourResponse() { Detail = "" };
+                errorResponse = new HourResponse() { Detail = "Falha de comunicação.", Data = null, StatusCode = System.Net.HttpStatusCode.BadGateway };
                 return errorResponse;
             }
-            throw new NotImplementedException();
         }
 
-
-        public DaysResponse Get15DaysWeather(ParameterRequest city)
+        public DaysResponse Get15DaysWeather(ParameterRequest parameterRequest)
         {
-            throw new NotImplementedException();
+            DaysResponse response;
+
+            if (parameterRequest == null || parameterRequest.State == null || parameterRequest.City == null)
+            {
+                response = new DaysResponse()
+                {
+                    Detail = "Parâmetros Inválidos",
+                    Date = null,
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                };
+                return response;
+            }
+
+            try
+            {
+                var result = _httpClient.GetAsync($"{_host}/locale/city?name={parameterRequest.City}&state={parameterRequest.State}&{_token}").Result;
+
+                if (result.Content == null)
+                {
+                    return new DaysResponse()
+                    {
+                        Detail = "Cidade ou Estado inválidos.",
+                        Date = null,
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
+                }
+
+                var baseModel = result.Content.ReadAsAsync<BaseModel>().Result;
+
+                result = _httpClient.GetAsync($"{_host}forecast/locale/{baseModel.Id}/days/15?{_token}").Result;
+
+                var finalResult = result.Content.ReadAsAsync<DaysResponse>().Result;
+                finalResult.StatusCode = result.StatusCode;
+
+                return finalResult;
+            }
+            catch (UnsupportedMediaTypeException ex)
+            {
+                return new DaysResponse()
+                {
+                    Detail = "Não foi possível executar a operação, verifique os " +
+                    "Parametros informados e tente novamente.",
+                    Date = null,
+                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DaysResponse() { Detail = "Falha de comunicação.", Date = null, StatusCode = System.Net.HttpStatusCode.BadGateway };
+
+            }
         }
     }
 }
