@@ -1,10 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace ClimaTempoAPI.Models.Hour
 {
     public class HourResponse
     {
+        [JsonIgnore]
+        public HttpStatusCode StatusCode { get; set; }
         public List<Hour> Data { get; set; }
         public string Detail { get; set; }
     }

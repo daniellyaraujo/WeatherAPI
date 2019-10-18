@@ -5,7 +5,6 @@ using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
 using System;
 using System.Net.Http;
-using WeatherAPI.Models;
 using WeatherAPI.Models.Region;
 
 namespace ClimaTempoAPI.Service
@@ -15,16 +14,16 @@ namespace ClimaTempoAPI.Service
     /// </summary>
     public class WeatherService : IWeatherService
     {
-        private readonly IHttpClient _client;
+        private readonly IHttpClient _httpClient;
         private string _host;
         private string _token;
 
         /// <summary>
         /// 
         /// </summary>
-        public WeatherService(IHttpClient client)
+        public WeatherService(IHttpClient httpClient)
         {
-            _client = client;
+            _httpClient = httpClient;
             _host = "http://apiadvisor.climatempo.com.br/api/v1";
             _token = "token=0b5e7fb3c07b2dbcbf28773b0138e85d";
         }
@@ -33,7 +32,7 @@ namespace ClimaTempoAPI.Service
         {
             RegionResponse response;
 
-            var result = _client.GetAsync($"{_host}/forecast/region/{region}?{_token}").GetAwaiter().GetResult();
+            var result = _httpClient.GetAsync($"{_host}/forecast/region/{region}?{_token}").GetAwaiter().GetResult();
 
             if (result == null) return null;
 
@@ -63,14 +62,46 @@ namespace ClimaTempoAPI.Service
 
         public HourResponse Get72hrWeatherById(ParameterRequest parameterRequest)
         {
+            HourResponse errorResponse;
+
             if (parameterRequest == null || parameterRequest.State == null || parameterRequest.City == null)
             {
-                var errorResponse = new HourResponse() { Detail = "Parâmetros Inválidos" };
+                errorResponse = new HourResponse() { Detail = "Parâmetros Inválidos" };
                 return errorResponse;
             }
 
+            var result = _httpClient.GetAsync($"{_host}/locale/city?name={parameterRequest.City}&state={parameterRequest.State}&{_token}")
+                .Result;
+
+            if (result.Content == null)
+            {
+                errorResponse = new HourResponse() { Detail = "Cidade ou Estado inválidos." };
+                return errorResponse;
+            }
+
+            try
+            {
+                var response = result.Content.ReadAsAsync<HourResponse>().Result;
+                
+
+            }
+            catch (UnsupportedMediaTypeException ex)
+            {
+                errorResponse = new HourResponse()
+                {
+                    Detail = "Não foi possível executar a operação, verifique os " +
+                    "Parametros informados e tente novamente."
+                };
+                return errorResponse;
+            }
+            catch (Exception ex)
+            {
+                errorResponse = new HourResponse() { Detail = "" };
+                return errorResponse;
+            }
             throw new NotImplementedException();
         }
+
 
         public DaysResponse Get15DaysWeather(ParameterRequest city)
         {
@@ -78,3 +109,4 @@ namespace ClimaTempoAPI.Service
         }
     }
 }
+
