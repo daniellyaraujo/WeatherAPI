@@ -25,6 +25,6 @@ namespace WeatherAPI.Models.Region
     public class Region
     {
         public DateTime Date { get; set; }
-        public string Description { get; set; }
+        public string Text { get; set; }
     }
 }

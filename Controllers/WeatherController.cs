@@ -9,6 +9,7 @@ using System;
 using WeatherAPI.Models;
 using WeatherAPI.Models.Region;
 using ClimaTempoAPI.Service;
+using ClimaTempoAPI.Models.Region;
 
 namespace WeatherAPI.Controllers
 {
@@ -35,26 +36,31 @@ namespace WeatherAPI.Controllers
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
         public ActionResult GetWeatherByRegion(string region)
         {
-            if (string.IsNullOrEmpty(region))
-            {
-                var result = new ErrorResponse();
-                result.Message = "Região Inválida";
-                return new BadRequestObjectResult(result);
-            }
-            try
-            {
-                var regionResponse = _service.GetWeatherByRegion(region);
+            //    if (region != regionModels )
+            //    {
+            //        var result = new ErrorResponse() { Message = "Região Inválida" };
+            //        return new BadRequestObjectResult(result);
+            //    }
 
-                if (regionResponse == null)
-                {
+            switch (region)
+            {
+             case RegionModel
+             default:
+                    break;
+            }
+            var regionResponse = _service.GetWeatherByRegion(region);
+
+            switch (regionResponse.StatusCode)
+            {
+                case System.Net.HttpStatusCode.OK:
+                    return Ok(regionResponse);
+                case System.Net.HttpStatusCode.BadRequest:
+                    return new BadRequestObjectResult(regionResponse);
+                case System.Net.HttpStatusCode.InternalServerError:
+                case System.Net.HttpStatusCode.BadGateway:
                     return new StatusCodeResult(StatusCodes.Status502BadGateway);
-                }
-
-                return new OkObjectResult(regionResponse);
-            }
-            catch (Exception)
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                default:
+                    return new OkObjectResult(regionResponse);
             }
         }
 
@@ -149,9 +155,9 @@ namespace WeatherAPI.Controllers
         {
             if (request == null || string.IsNullOrEmpty(request.City) || string.IsNullOrEmpty(request.State))
             {
-                var result = new ErrorResponse();
-                result.Message = "Cidade ou Estado Inválidos";
-                return new BadRequestObjectResult(result);
+                var errorResponse = new ErrorResponse();
+                errorResponse.Message = "Cidade ou Estado Inválidos";
+                return new BadRequestObjectResult(errorResponse);
             }
 
             try

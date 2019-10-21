@@ -84,7 +84,7 @@ namespace ClimaTempoAPI.Service
 
                 var baseModel = result.Content.ReadAsAsync<BaseModel>().Result;
 
-                result = _httpClient.GetAsync($"{_host}forecast/locale/{baseModel.Id}/days/15?{_token}").Result;
+                result = _httpClient.GetAsync($"{_host}/weather/locale/{baseModel.Id}/current?{_token}").Result;
 
                 var finalResult = result.Content.ReadAsAsync<CityResponse>().Result;
                 finalResult.StatusCode = result.StatusCode;
@@ -115,7 +115,6 @@ namespace ClimaTempoAPI.Service
                     WindDirection = "sul",
                     WindVelocity = 23
                 };
-
             }
         }
 
