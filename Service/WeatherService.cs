@@ -4,6 +4,8 @@ using ClimaTempoAPI.Models.Current;
 using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using WeatherAPI.Models.Region;
 
@@ -82,9 +84,33 @@ namespace ClimaTempoAPI.Service
                     };
                 }
 
-                var baseModel = result.Content.ReadAsAsync<BaseModel>().Result;
+                var baseModel = result.Content.ReadAsAsync<IEnumerable<BaseListModel>>().Result;
 
-                result = _httpClient.GetAsync($"{_host}/weather/locale/{baseModel.Id}/current?{_token}").Result;
+                if (baseModel == null || !baseModel.Any())
+                {
+                    return new CityResponse()
+                    {
+                        Detail = "Cidade ou Estado inválidos.",
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
+                }
+
+                var cityID = baseModel.First().Id;
+
+                //inserçao do put para gravar ID para pesquisa
+               // result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/0b5e7fb3c07b2dbcbf28773b0138e85d/locales", )?.Result;
+
+                if (result.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    return new CityResponse()
+                    {
+                        Detail = "Não foi possível executar a operação, verifique os " +
+                    "Parametros informados e tente novamente.",
+                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                    };
+                }
+
+                result = _httpClient.GetAsync($"{_host}/weather/locale/{baseModel.First().Id}/current?{_token}")?.Result;
 
                 var finalResult = result.Content.ReadAsAsync<CityResponse>().Result;
                 finalResult.StatusCode = result.StatusCode;
@@ -105,15 +131,7 @@ namespace ClimaTempoAPI.Service
                 return new CityResponse()
                 {
                     StatusCode = System.Net.HttpStatusCode.BadGateway,
-                    Detail = "Falha de comunicação.",
-                    Date = new DateTime(2019, 10, 18),
-                    Humidity = 20,
-                    Condition = "Nublado",
-                    Pressure = 21,
-                    Sensation = 23,
-                    Temperature = 23.4,
-                    WindDirection = "sul",
-                    WindVelocity = 23
+                    Detail = "Falha de comunicação."
                 };
             }
         }
@@ -146,7 +164,7 @@ namespace ClimaTempoAPI.Service
                     };
                     return errorResponse;
                 }
-                var response = result.Content.ReadAsAsync<BaseModel>().Result;
+                var response = result.Content.ReadAsAsync<BaseListModel>().Result;
 
                 result = _httpClient.GetAsync($"{_host}forecast/locale/{response.Id}/hours/72?{_token}").Result;
 
@@ -204,7 +222,7 @@ namespace ClimaTempoAPI.Service
                     };
                 }
 
-                var baseModel = result.Content.ReadAsAsync<BaseModel>().Result;
+                var baseModel = result.Content.ReadAsAsync<BaseListModel>().Result;
 
                 result = _httpClient.GetAsync($"{_host}forecast/locale/{baseModel.Id}/days/15?{_token}").Result;
 

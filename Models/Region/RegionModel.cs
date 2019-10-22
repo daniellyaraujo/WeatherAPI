@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ClimaTempoAPI.Models.Region
 {
     public class RegionModel
     {
-        enum RegionModels
-        {
-            sul,
-            sudeste,
-            centro_oeste,
-            norte,
-            nordeste
+        public List<string> RegionModels { get; }
 
-        };
-    }
+        public RegionModel()
+        {
+            RegionModels = new List<string>();
+
+            RegionModels.Add("sul");
+            RegionModels.Add("sudeste");
+            RegionModels.Add("norte");
+            RegionModels.Add("nordeste");
+            RegionModels.Add("centro oeste");
+        }
+    };
 }

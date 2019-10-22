@@ -10,6 +10,7 @@ using WeatherAPI.Models;
 using WeatherAPI.Models.Region;
 using ClimaTempoAPI.Service;
 using ClimaTempoAPI.Models.Region;
+using System.Collections.Generic;
 
 namespace WeatherAPI.Controllers
 {
@@ -18,10 +19,12 @@ namespace WeatherAPI.Controllers
     public class WeatherController : ControllerBase
     {
         IWeatherService _service;
+        RegionModel regionModel;
 
         public WeatherController(IWeatherService service)
         {
             _service = service;
+            regionModel = new RegionModel();
         }
 
         /// <summary>
@@ -36,31 +39,35 @@ namespace WeatherAPI.Controllers
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
         public ActionResult GetWeatherByRegion(string region)
         {
-            //    if (region != regionModels )
-            //    {
-            //        var result = new ErrorResponse() { Message = "Região Inválida" };
-            //        return new BadRequestObjectResult(result);
-            //    }
+            RegionResponse regionResponse;
 
-            switch (region)
+            if (!regionModel.RegionModels.Contains(region) || string.IsNullOrEmpty(region))
             {
-             case RegionModel
-             default:
-                    break;
+                var result = new ErrorResponse() { Message = "Região Inválida" };
+                return new BadRequestObjectResult(result);
             }
-            var regionResponse = _service.GetWeatherByRegion(region);
 
-            switch (regionResponse.StatusCode)
+            try
             {
-                case System.Net.HttpStatusCode.OK:
-                    return Ok(regionResponse);
-                case System.Net.HttpStatusCode.BadRequest:
-                    return new BadRequestObjectResult(regionResponse);
-                case System.Net.HttpStatusCode.InternalServerError:
-                case System.Net.HttpStatusCode.BadGateway:
-                    return new StatusCodeResult(StatusCodes.Status502BadGateway);
-                default:
-                    return new OkObjectResult(regionResponse);
+                region = region.ToLower();
+                regionResponse = _service.GetWeatherByRegion(region);
+
+                switch (regionResponse.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.OK:
+                        return Ok(regionResponse);
+                    case System.Net.HttpStatusCode.BadRequest:
+                        return new BadRequestObjectResult(regionResponse);
+                    case System.Net.HttpStatusCode.InternalServerError:
+                    case System.Net.HttpStatusCode.BadGateway:
+                        return new StatusCodeResult(StatusCodes.Status502BadGateway);
+                    default:
+                        return new OkObjectResult(regionResponse);
+                }
+            }
+            catch (Exception)
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -74,7 +81,7 @@ namespace WeatherAPI.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public ActionResult GetCurrentWeatherByCity(ParameterRequest request)
+        public ActionResult GetCurrentWeatherByCity([FromRoute] ParameterRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.City) || string.IsNullOrEmpty(request.State))
             {

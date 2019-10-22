@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ClimaTempoAPI.Models
 {
-    public class BaseModel
+    public class BaseListModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -13,3 +10,4 @@ namespace ClimaTempoAPI.Models
         public string Country { get; set; }
     }
 }
+
