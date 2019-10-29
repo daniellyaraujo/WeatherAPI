@@ -3,14 +3,12 @@ using ClimaTempoAPI.Models;
 using ClimaTempoAPI.Models.Current;
 using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
+using ClimaTempoAPI.Models.Region;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using WeatherAPI.Models;
 using WeatherAPI.Models.Region;
-using ClimaTempoAPI.Service;
-using ClimaTempoAPI.Models.Region;
-using System.Collections.Generic;
 
 namespace WeatherAPI.Controllers
 {
@@ -115,7 +113,7 @@ namespace WeatherAPI.Controllers
         /// </summary>
         /// <param name="request"></param>      
         /// <returns></returns>
-        [HttpGet("72hr/{city}/{state}")]
+        [HttpGet("hours/{city}/{state}")]
         [ProducesResponseType(typeof(HourResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
