@@ -35,7 +35,7 @@ namespace WeatherAPI.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public ActionResult GetWeatherByRegion(string region)
+        public ActionResult GetWeatherByRegion([FromRoute]string region)
         {
             RegionResponse regionResponse;
 
@@ -113,12 +113,12 @@ namespace WeatherAPI.Controllers
         /// </summary>
         /// <param name="request"></param>      
         /// <returns></returns>
-        [HttpGet("hours/{city}/{state}")]
+        [HttpGet("hours72/{city}/{state}")]
         [ProducesResponseType(typeof(HourResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public ActionResult Get72hrWeatherById(ParameterRequest request)
+        public ActionResult Get72hrWeatherById([FromRoute] ParameterRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.City) || string.IsNullOrEmpty(request.State))
             {
@@ -151,12 +151,12 @@ namespace WeatherAPI.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpGet("15days/{city}/{state}")]
+        [HttpGet("days/{city}/{state}")]
         [ProducesResponseType(typeof(DaysResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public ActionResult Get15daysWeatherById(ParameterRequest request)
+        public ActionResult Get15daysWeatherById([FromRoute]ParameterRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.City) || string.IsNullOrEmpty(request.State))
             {
@@ -164,7 +164,6 @@ namespace WeatherAPI.Controllers
                 errorResponse.Message = "Cidade ou Estado Inválidos";
                 return new BadRequestObjectResult(errorResponse);
             }
-
             try
             {
                 var result = _service.Get15DaysWeather(request);
@@ -183,7 +182,5 @@ namespace WeatherAPI.Controllers
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
-
-
     }
 }

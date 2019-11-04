@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace ClimaTempoAPI.Models.Days
@@ -8,8 +8,10 @@ namespace ClimaTempoAPI.Models.Days
     {
         [JsonIgnore]
         public HttpStatusCode StatusCode { get; set; }
-        public DateTime? Date { get; set; }
-        public ClimateResponse Status { get; set; }
+
+        public List<ClimateResponse> Data { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string  Detail { get; set; }
     }
 }

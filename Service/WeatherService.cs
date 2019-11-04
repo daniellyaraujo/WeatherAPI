@@ -3,12 +3,12 @@ using ClimaTempoAPI.Models;
 using ClimaTempoAPI.Models.Current;
 using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
-using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using WeatherAPI.Models.Region;
 
 namespace ClimaTempoAPI.Service
@@ -29,7 +29,7 @@ namespace ClimaTempoAPI.Service
         {
             _httpClient = httpClient;
             _host = "http://apiadvisor.climatempo.com.br/api/v1";
-            _token = "token=0b5e7fb3c07b2dbcbf28773b0138e85d";
+            _token = "token=f444ae97bad0cadc04e972d4566220f1";
         }
 
         public RegionResponse GetWeatherByRegion(string region)
@@ -98,10 +98,11 @@ namespace ClimaTempoAPI.Service
                 }
 
                 var cityID = baseModel.First().Id;
+                var request = new HttpRequestMessage();
+                request.Content = new StringContent($"localeId[]={cityID}");
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
-                var content = new StringContent(cityID.ToString(), System.Text.Encoding.ASCII, "application/x-www-form-urlencoded");
-
-                result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/0b5e7fb3c07b2dbcbf28773b0138e85d/locales", content)?.Result;
+                result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/f444ae97bad0cadc04e972d4566220f1/locales", request.Content)?.Result;
 
                 if (result.StatusCode != HttpStatusCode.OK)
                 {
@@ -109,17 +110,18 @@ namespace ClimaTempoAPI.Service
                     {
                         Detail = "Não foi possível executar a operação, verifique os " +
                     "Parametros informados e tente novamente.",
+
                         StatusCode = HttpStatusCode.BadRequest
                     };
                 }
 
-                result = _httpClient.GetAsync($"{_host}/weather/locale/{cityID}/current?{_token}")?.Result;
-                var finalResult = result.Content.ReadAsAsync<CityResponse>().Result;
-                finalResult.StatusCode = result.StatusCode;
+                var resultIdSearch = _httpClient.GetAsync($"{_host}/weather/locale/{cityID}/current?{_token}")?.Result;
+                var finalResult = resultIdSearch.Content.ReadAsAsync<CityResponse>().Result;
+                finalResult.StatusCode = resultIdSearch.StatusCode;
 
                 return finalResult;
             }
-            catch (UnsupportedMediaTypeException ex)
+            catch (UnsupportedMediaTypeException)
             {
                 return new CityResponse()
                 {
@@ -128,7 +130,7 @@ namespace ClimaTempoAPI.Service
                     StatusCode = HttpStatusCode.BadRequest
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new CityResponse()
                 {
@@ -148,7 +150,7 @@ namespace ClimaTempoAPI.Service
                 {
                     Detail = "Parâmetros Inválidos",
                     Data = null,
-                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                    StatusCode = HttpStatusCode.BadRequest
                 };
                 return errorResponse;
             }
@@ -162,35 +164,63 @@ namespace ClimaTempoAPI.Service
                     {
                         Detail = "Cidade ou Estado inválidos.",
                         Data = null,
-                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                        StatusCode = HttpStatusCode.BadRequest
                     };
                     return errorResponse;
                 }
-                var response = result.Content.ReadAsAsync<BaseListModel>().Result;
 
-                result = _httpClient.GetAsync($"{_host}forecast/locale/{response.Id}/hours/72?{_token}").Result;
+                var baseModel = result.Content.ReadAsAsync<IEnumerable<BaseListModel>>().Result;
+
+                if (baseModel == null || !baseModel.Any())
+                {
+                    return new HourResponse()
+                    {
+                        Detail = "Cidade ou Estado inválidos.",
+                        Data = null,
+                        StatusCode = HttpStatusCode.BadRequest
+                    };
+                }
+
+                var cityID = baseModel.First().Id;
+                var request = new HttpRequestMessage();
+                request.Content = new StringContent($"localeId[]={cityID}");
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+                result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/f444ae97bad0cadc04e972d4566220f1/locales", request.Content)?.Result;
+
+                if (result.StatusCode != HttpStatusCode.OK)
+                {
+                    return new HourResponse()
+                    {
+                        Detail = "Não foi possível executar a operação, verifique os " +
+                    "Parametros informados e tente novamente.",
+                        Data = null,
+                        StatusCode = HttpStatusCode.BadRequest
+                    };
+                }
+
+                result = _httpClient.GetAsync($"{_host}forecast/locale/{cityID}/hours/72?{_token}").Result;
 
                 var finalResult = result.Content.ReadAsAsync<HourResponse>().Result;
                 finalResult.StatusCode = result.StatusCode;
 
                 return finalResult;
             }
-            catch (UnsupportedMediaTypeException ex)
+            catch (UnsupportedMediaTypeException)
             {
                 errorResponse = new HourResponse()
                 {
                     Detail = "Não foi possível executar a operação, verifique os " +
                     "Parametros informados e tente novamente.",
                     Data = null,
-                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                    StatusCode = HttpStatusCode.BadRequest
                 };
 
                 return errorResponse;
-
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                errorResponse = new HourResponse() { Detail = "Falha de comunicação.", Data = null, StatusCode = System.Net.HttpStatusCode.BadGateway };
+                errorResponse = new HourResponse() { Detail = "Falha de comunicação.", Data = null, StatusCode = HttpStatusCode.BadGateway };
                 return errorResponse;
             }
         }
@@ -204,8 +234,7 @@ namespace ClimaTempoAPI.Service
                 response = new DaysResponse()
                 {
                     Detail = "Parâmetros Inválidos",
-                    Date = null,
-                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                    StatusCode = HttpStatusCode.BadRequest
                 };
                 return response;
             }
@@ -219,34 +248,56 @@ namespace ClimaTempoAPI.Service
                     return new DaysResponse()
                     {
                         Detail = "Cidade ou Estado inválidos.",
-                        Date = null,
-                        StatusCode = System.Net.HttpStatusCode.BadRequest
+                        StatusCode = HttpStatusCode.BadRequest
                     };
                 }
 
-                var baseModel = result.Content.ReadAsAsync<BaseListModel>().Result;
+                var baseModel = result.Content.ReadAsAsync<IEnumerable<BaseListModel>>().Result;
 
-                result = _httpClient.GetAsync($"{_host}forecast/locale/{baseModel.Id}/days/15?{_token}").Result;
+                if (baseModel == null || !baseModel.Any())
+                {
+                    return new DaysResponse()
+                    {
+                        Detail = "Cidade ou Estado inválidos.",
+                        StatusCode = HttpStatusCode.BadRequest
+                    };
+                }
 
+                var cityID = baseModel.First().Id;
+                var request = new HttpRequestMessage();
+                request.Content = new StringContent($"localeId[]={cityID}");
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+                result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/f444ae97bad0cadc04e972d4566220f1/locales", request.Content)?.Result;
+                if (result.StatusCode != HttpStatusCode.OK)
+                {
+                    return new DaysResponse()
+                    {
+                        Detail = "Não foi possível executar a operação, verifique os " +
+                    "Parametros informados e tente novamente.",
+                        StatusCode = HttpStatusCode.BadRequest
+                    };
+                }
+
+                result = _httpClient.GetAsync($"{_host}/forecast/locale/{cityID}/days/15?{_token}").Result;
                 var finalResult = result.Content.ReadAsAsync<DaysResponse>().Result;
                 finalResult.StatusCode = result.StatusCode;
 
                 return finalResult;
+
             }
-            catch (UnsupportedMediaTypeException ex)
+            catch (UnsupportedMediaTypeException)
             {
                 return new DaysResponse()
                 {
                     Detail = "Não foi possível executar a operação, verifique os " +
                     "Parametros informados e tente novamente.",
-                    Date = null,
-                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                    StatusCode = HttpStatusCode.BadRequest
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new DaysResponse() { Detail = "Falha de comunicação.", Date = null, StatusCode = System.Net.HttpStatusCode.BadGateway };
-
+                return new DaysResponse() { Detail = "Falha de comunicação.", StatusCode = HttpStatusCode.BadGateway };
             }
         }
     }
