@@ -12,6 +12,6 @@ namespace ClimaTempoAPI.Models.Days
         public List<ClimateResponse> Data { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string  Detail { get; set; }
+        public string Detail { get; set; }
     }
 }

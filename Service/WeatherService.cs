@@ -3,8 +3,10 @@ using ClimaTempoAPI.Models;
 using ClimaTempoAPI.Models.Current;
 using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -25,10 +27,10 @@ namespace ClimaTempoAPI.Service
         /// <summary>
         /// 
         /// </summary>
-        public WeatherService(IHttpClient httpClient)
-        {
+        public WeatherService(IHttpClient httpClient, IConfiguration configuration)
+        {            
             _httpClient = httpClient;
-            _host = "http://apiadvisor.climatempo.com.br/api/v1";
+            _host = configuration["ClimaTempo:host"];
             _token = "token=f444ae97bad0cadc04e972d4566220f1";
         }
 

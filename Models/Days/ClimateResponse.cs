@@ -5,7 +5,6 @@ namespace ClimaTempoAPI.Models.Days
 {
     public class ClimateResponse
     {
-        [JsonProperty("Data")]
         public DateTime? Data { get; set; }
 
         //[JsonProperty("Umidade")]

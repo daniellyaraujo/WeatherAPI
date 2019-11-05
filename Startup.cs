@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using ClimaTempoAPI.Client;
+﻿using ClimaTempoAPI.Client;
 using ClimaTempoAPI.Interfaces;
 using ClimaTempoAPI.Service;
 using Microsoft.AspNetCore.Builder;
@@ -12,10 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.PlatformAbstractions;
 using Swashbuckle.AspNetCore.Swagger;
+using System.IO;
 
 namespace WeatherAPI
 {
@@ -30,7 +23,8 @@ namespace WeatherAPI
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
+        {           
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddSingleton<IWeatherService, WeatherService>();
@@ -81,7 +75,6 @@ namespace WeatherAPI
                 c.SwaggerEndpoint("/swagger/v1/swagger.json",
                     "Conversor de Temperaturas");
             });
-
         }
     }
 }
