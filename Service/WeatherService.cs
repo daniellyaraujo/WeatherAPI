@@ -199,7 +199,7 @@ namespace ClimaTempoAPI.Service
                     };
                 }
 
-                result = _httpClient.GetAsync($"{_host}forecast/locale/{cityID}/hours/72?{_token}").Result;
+                result = _httpClient.GetAsync($"{_host}/forecast/locale/{cityID}/hours/72?{_token}").Result;
 
                 var finalResult = result.Content.ReadAsAsync<HourResponse>().Result;
                 finalResult.StatusCode = result.StatusCode;
