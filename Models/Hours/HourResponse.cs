@@ -9,33 +9,38 @@ namespace ClimaTempoAPI.Models.Hour
     {
         [JsonIgnore]
         public HttpStatusCode StatusCode { get; set; }
+
         public List<Hour> Data { get; set; }
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Detail { get; set; }
     }
 
     public class Hour
     {
-        public DateTime Date { get; set; }
-        public double Rain { get; set; }
+        public DateTime Date_br { get; set; }
+        public Rain rain { get; set; }
     }
 
-    public class WindRequest
+    public class Rain
     {
-        public List<Wind> wind { get; set; }
+        public double Precipitation { get; set; }
+        public Wind wind { get; set; }
     }
+
     public class Wind
     {
         public double Velocity { get; set; }
-        public string Direction { get; set; }
-    }
+        public int Direction { get; set; }
+        //diração graus
+        public int DirectionDegrees { get; set; }
+        //rajada
+        public double gust { get; set; }
 
-    public class TemperatureResponse
-    {
-        public List<TemperatureClimate> Temperature { get; set; }
+        public TemperatureClimate Temperature { get; set; }
     }
-
     public class TemperatureClimate
     {
-        public double Climate { get; set; }
+        public double Temperature { get; set; }
     }
 }

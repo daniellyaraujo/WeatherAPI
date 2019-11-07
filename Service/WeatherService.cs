@@ -6,7 +6,6 @@ using ClimaTempoAPI.Models.Hour;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,10 +27,10 @@ namespace ClimaTempoAPI.Service
         /// 
         /// </summary>
         public WeatherService(IHttpClient httpClient, IConfiguration configuration)
-        {            
+        {
             _httpClient = httpClient;
-            _host = configuration["ClimaTempo:host"];
-            _token = "token=f444ae97bad0cadc04e972d4566220f1";
+            _host = configuration.GetSection("ClimaTempo:host").Value;
+            _token = $"token={configuration.GetSection("ClimaTempo:token").Value}";
         }
 
         public RegionResponse GetWeatherByRegion(string region)
@@ -132,7 +131,7 @@ namespace ClimaTempoAPI.Service
                     StatusCode = HttpStatusCode.BadRequest
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new CityResponse()
                 {
@@ -203,6 +202,7 @@ namespace ClimaTempoAPI.Service
 
                 result = _httpClient.GetAsync($"{_host}/forecast/locale/{cityID}/hours/72?{_token}").Result;
 
+                //deu ruim aqui
                 var finalResult = result.Content.ReadAsAsync<HourResponse>().Result;
                 finalResult.StatusCode = result.StatusCode;
 
@@ -220,7 +220,7 @@ namespace ClimaTempoAPI.Service
 
                 return errorResponse;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 errorResponse = new HourResponse() { Detail = "Falha de comunicação.", Data = null, StatusCode = HttpStatusCode.BadGateway };
                 return errorResponse;
