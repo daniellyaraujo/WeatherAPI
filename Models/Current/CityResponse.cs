@@ -13,7 +13,6 @@ namespace ClimaTempoAPI.Models.Current
         public string Name { get; set; }
         public string State { get; set; }
         public string Country { get; set; }
-
         public CityClimate Data { get; set; }
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]

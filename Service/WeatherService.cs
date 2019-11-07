@@ -22,6 +22,7 @@ namespace ClimaTempoAPI.Service
         private readonly IHttpClient _httpClient;
         private string _host;
         private string _token;
+        private string _hostPut;
 
         /// <summary>
         /// 
@@ -34,7 +35,8 @@ namespace ClimaTempoAPI.Service
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
             _host = configuration.GetSection("ClimaTempo:host").Value;
-            _token = $"token={configuration.GetSection("ClimaTempo:token").Value}";
+            _token = configuration.GetSection("ClimaTempo:token").Value;
+            _hostPut = configuration.GetSection("ClimaTempo:hostPut").Value;
         }
 
         public RegionResponse GetWeatherByRegion(string region)
@@ -107,7 +109,7 @@ namespace ClimaTempoAPI.Service
                 var request = new HttpRequestMessage();
                 request.Content = new StringContent($"localeId[]={cityID}");
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-                result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/f444ae97bad0cadc04e972d4566220f1/locales", request.Content)?.Result;
+                result = _httpClient.PutAsync($"{_hostPut}/{_token}/locales", request.Content)?.Result;
 
                 if (result.StatusCode != HttpStatusCode.OK)
                 {
@@ -163,6 +165,7 @@ namespace ClimaTempoAPI.Service
             try
             {
                 var result = _httpClient.GetAsync($"{_host}/locale/city?name={parameterRequest.City}&state={parameterRequest.State}&{_token}").Result;
+
                 if (result.Content == null)
                 {
                     errorResponse = new HourResponse()
@@ -191,7 +194,7 @@ namespace ClimaTempoAPI.Service
                 request.Content = new StringContent($"localeId[]={cityID}");
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
-                result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/f444ae97bad0cadc04e972d4566220f1/locales", request.Content)?.Result;
+                result = _httpClient.PutAsync($"{_hostPut}/{_token}/locales", request.Content)?.Result;
 
                 if (result.StatusCode != HttpStatusCode.OK)
                 {
@@ -274,7 +277,7 @@ namespace ClimaTempoAPI.Service
                 request.Content = new StringContent($"localeId[]={cityID}");
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
-                result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/f444ae97bad0cadc04e972d4566220f1/locales", request.Content)?.Result;
+                result = _httpClient.PutAsync($"{_hostPut}/{_token}/locales", request.Content)?.Result;
                 if (result.StatusCode != HttpStatusCode.OK)
                 {
                     return new DaysResponse()

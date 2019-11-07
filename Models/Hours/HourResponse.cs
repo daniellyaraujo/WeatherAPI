@@ -20,24 +20,22 @@ namespace ClimaTempoAPI.Models.Hour
     {
         public DateTime Date_br { get; set; }
         public Rain rain { get; set; }
+        public Wind Wind { get; set; }
+        public TemperatureClimate Temperature { get; set; }
     }
 
     public class Rain
     {
-        public double Precipitation { get; set; }
-        public Wind wind { get; set; }
+        public double Precipitation { get; set; }        
     }
 
     public class Wind
     {
         public double Velocity { get; set; }
-        public int Direction { get; set; }
-        //diração graus
-        public int DirectionDegrees { get; set; }
-        //rajada
+        public string Direction { get; set; }
+        public double DirectionDegrees { get; set; }
         public double gust { get; set; }
-
-        public TemperatureClimate Temperature { get; set; }
+        
     }
     public class TemperatureClimate
     {
