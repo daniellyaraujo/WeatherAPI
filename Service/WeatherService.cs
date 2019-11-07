@@ -3,7 +3,6 @@ using ClimaTempoAPI.Models;
 using ClimaTempoAPI.Models.Current;
 using ClimaTempoAPI.Models.Days;
 using ClimaTempoAPI.Models.Hour;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using WeatherAPI.Models.Region;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace ClimaTempoAPI.Service
 {
@@ -28,7 +28,11 @@ namespace ClimaTempoAPI.Service
         /// </summary>
         public WeatherService(IHttpClient httpClient, IConfiguration configuration)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClient == null ?
+                            throw new ArgumentNullException(nameof(httpClient)) : httpClient;
+
+            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+
             _host = configuration.GetSection("ClimaTempo:host").Value;
             _token = $"token={configuration.GetSection("ClimaTempo:token").Value}";
         }
@@ -99,10 +103,10 @@ namespace ClimaTempoAPI.Service
                 }
 
                 var cityID = baseModel.First().Id;
+
                 var request = new HttpRequestMessage();
                 request.Content = new StringContent($"localeId[]={cityID}");
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
                 result = _httpClient.PutAsync("http://apiadvisor.climatempo.com.br/api-manager/user-token/f444ae97bad0cadc04e972d4566220f1/locales", request.Content)?.Result;
 
                 if (result.StatusCode != HttpStatusCode.OK)
